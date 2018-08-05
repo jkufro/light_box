@@ -10,9 +10,11 @@ class Button(object):
     """
     str_width = 5
 
-    def __init__(self, identifier, lights):
+    def __init__(self, identifier, lights, row, col):
         self.identifier = identifier
         self.lights = lights
+        self.row = row
+        self.col = col
         self.validate()
 
     def validate(self):
@@ -25,6 +27,9 @@ class Button(object):
     def press(self):
         for light in self.lights:
             light.toggle()
+
+    def draw_curses(self, stdscr):
+        stdscr.addstr(self.row, self.col, str(self))
 
     def __repr__(self):
         return "[ %s ]" % self.identifier

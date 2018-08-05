@@ -11,11 +11,15 @@ class Board(object):
     """
     left_offset = 4
     top_offset = 1
+    button_light_row_spacing = 2
 
     def __init__(self, light_rows=5, light_cols=5, num_buttons=8):
         self.light_rows = light_rows
         self.light_cols = light_cols
         self.num_buttons = num_buttons
+        self.board_height = ((Light.str_height * self.light_rows) +
+                             Board.top_offset)
+        self.button_row = self.board_height + Board.button_light_row_spacing
         self.lights = []
         self.buttons = []
         self.buttons_dict = {}
@@ -42,7 +46,9 @@ class Board(object):
         for row_num in range(self.light_rows):
             row = []
             for col_num in range(self.light_cols):
-                light = Light()
+                l_row = ((Light.str_height) * row_num) + Board.top_offset
+                l_col = ((Light.str_width + 4) * col_num) + Board.left_offset
+                light = Light(l_row, l_col)
                 self.lights.append(light)
                 row.append(light)
             self.board.append(row)
@@ -53,7 +59,9 @@ class Board(object):
         for button_num in range(self.num_buttons):
             identifier = chr(starting_identifier + button_num)
             lights = shuffled_lights[button_num]
-            button = Button(identifier, lights)
+            row = self.button_row
+            col = (Button.str_width + 2) * button_num
+            button = Button(identifier, lights, row, col)
             self.buttons.append(button)
             self.buttons_dict[identifier] = button
 
@@ -76,18 +84,13 @@ class Board(object):
             light.toggle()
 
     def draw_curses(self, stdscr):
-        self.draw_curses_lights(stdscr)
-        self.draw_curses_buttons(stdscr)
+        for light in self.lights:
+            light.draw_curses(stdscr)
+        self.draw_curses_outline(stdscr)
+        for button in self.buttons:
+            button.draw_curses(stdscr)
 
-    def draw_curses_lights(self, stdscr):
-        # draw lights
-        for row_num in range(self.light_rows):
-            for col_num in range(self.light_cols):
-                row = ((Light.str_height) * row_num) + Board.top_offset
-                col = ((Light.str_width + 4) * col_num) + Board.left_offset
-                light = self.board[row_num][col_num]
-                curses_multiline_add_str(stdscr, row, col, str(light))
-
+    def draw_curses_outline(self, stdscr):
         # draw outline around lights
         all_light_width = ((Light.str_width + 4) * self.light_cols)
         board_width = all_light_width + Board.left_offset
@@ -100,14 +103,6 @@ class Board(object):
             char = "+" if ((j == 0) or (j == board_height)) else "|"
             stdscr.addstr(j, 0, char)
             stdscr.addstr(j, board_width, char)
-
-    def draw_curses_buttons(self, stdscr):
-        board_height = (Light.str_height * self.light_rows) + Board.top_offset
-        button_light_row_spacing = 2
-        button_row = board_height + button_light_row_spacing
-        for i in range(len(self.buttons)):
-            col = (Button.str_width + 2) * i
-            stdscr.addstr(button_row, col, str(self.buttons[i]))
 
     def is_game_over(self):
         """
