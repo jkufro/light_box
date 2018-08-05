@@ -1,7 +1,7 @@
 import random
 
 
-def divide_with_overlap(lst, splits):
+def divide_with_overlap(lst, splits, overlap=2):
     """
     split up the 1d list into a 2d list with len(splits) where a value from
     one sublist may appear in another sublist, but values will not be
@@ -11,7 +11,7 @@ def divide_with_overlap(lst, splits):
     random.shuffle(shuffled_lst)
     grouped_lst = group(shuffled_lst, splits)
     for sublist in grouped_lst:
-        for i in range(random.randint(0, splits)):
+        for i in range(random.randint(0, overlap)):
             overlap_element = random.choice(shuffled_lst)
             if overlap_element not in sublist:
                 sublist.append(overlap_element)
