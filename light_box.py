@@ -6,6 +6,7 @@ import time
 
 
 def main(stdscr):
+    print("hello")
     while True:
         board = Board()
         while not board.is_game_over():
